@@ -75,9 +75,13 @@ export class GoogleMapsUtils {
     else if (maxDiff >= 0.03) zoom = 14;
     else zoom = 15;
 
-    // Limit maximum zoom to 13 (city/neighborhood level)
-    // This prevents over-zooming when locations are very close
-    return Math.min(zoom, 13);
+    // For very small areas (all results in same city), use a reasonable city zoom
+    // Instead of zooming in too close, show the whole city area
+    if (zoom >= 14) {
+      return 12; // City-wide view
+    }
+
+    return zoom;
   }
 
   /**
