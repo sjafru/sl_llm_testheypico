@@ -2,6 +2,8 @@
 
 Find places using your local LLM (LM Studio/Ollama) integrated with Google Maps.
 
+![alt text](docs/static/how-itworks.png)
+
 ## Features
 
 - 🤖 **Local LLM Integration** - Uses your local LLM (Mistral 7B, Llama2, etc.) via LM Studio or Ollama

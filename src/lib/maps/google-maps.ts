@@ -58,20 +58,26 @@ export class GoogleMapsUtils {
     const lngDiff = bounds.east - bounds.west;
     const maxDiff = Math.max(latDiff, lngDiff);
 
-    if (maxDiff >= 180) return 2;
-    if (maxDiff >= 90) return 3;
-    if (maxDiff >= 45) return 4;
-    if (maxDiff >= 22) return 5;
-    if (maxDiff >= 11) return 6;
-    if (maxDiff >= 5) return 7;
-    if (maxDiff >= 2.5) return 8;
-    if (maxDiff >= 1) return 9;
-    if (maxDiff >= 0.5) return 10;
-    if (maxDiff >= 0.25) return 11;
-    if (maxDiff >= 0.125) return 12;
-    if (maxDiff >= 0.06) return 13;
-    if (maxDiff >= 0.03) return 14;
-    return 15;
+    // Calculate base zoom
+    let zoom: number;
+    if (maxDiff >= 180) zoom = 2;
+    else if (maxDiff >= 90) zoom = 3;
+    else if (maxDiff >= 45) zoom = 4;
+    else if (maxDiff >= 22) zoom = 5;
+    else if (maxDiff >= 11) zoom = 6;
+    else if (maxDiff >= 5) zoom = 7;
+    else if (maxDiff >= 2.5) zoom = 8;
+    else if (maxDiff >= 1) zoom = 9;
+    else if (maxDiff >= 0.5) zoom = 10;
+    else if (maxDiff >= 0.25) zoom = 11;
+    else if (maxDiff >= 0.125) zoom = 12;
+    else if (maxDiff >= 0.06) zoom = 13;
+    else if (maxDiff >= 0.03) zoom = 14;
+    else zoom = 15;
+
+    // Limit maximum zoom to 13 (city/neighborhood level)
+    // This prevents over-zooming when locations are very close
+    return Math.min(zoom, 13);
   }
 
   /**

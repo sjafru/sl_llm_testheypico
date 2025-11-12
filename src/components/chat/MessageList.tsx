@@ -18,14 +18,12 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages }: MessageListProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isLoading } = useChatContext();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
   if (messages.length === 0 && !isLoading) {
@@ -38,11 +36,12 @@ export function MessageList({ messages }: MessageListProps) {
 
   return (
     <ScrollArea className="h-full pr-4">
-      <div ref={scrollRef} className="space-y-4">
+      <div className="space-y-4">
         {messages.map((message) => (
           <MessageItem key={message.id} message={message} />
         ))}
         {isLoading && <LoadingSkeleton />}
+        <div ref={messagesEndRef} />
       </div>
     </ScrollArea>
   );

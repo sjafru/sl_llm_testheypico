@@ -80,97 +80,67 @@ export function LocationCard({ location, onSelect }: LocationCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer"
+    <Card className="hover:shadow-lg transition-shadow cursor-pointer max-w-md"
       onClick={() => onSelect?.(location)}
     >
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-start justify-between gap-2">
-          <span>{location.name}</span>
+      <CardHeader className="pb-2 pt-3">
+        <CardTitle className="text-base flex items-start justify-between gap-2">
+          <span className="line-clamp-1">{location.name}</span>
           {location.enrichedData?.rating && (
-            <div className="flex items-center gap-1 text-sm font-normal">
-              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+            <div className="flex items-center gap-1 text-xs font-normal flex-shrink-0">
+              <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
               <span>{location.enrichedData.rating.toFixed(1)}</span>
             </div>
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="flex items-start gap-2 text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-          <p>{location.address}</p>
+      <CardContent className="space-y-1.5 pt-0">
+        <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+          <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+          <p className="line-clamp-1">{location.address}</p>
         </div>
 
         {location.description && (
-          <p className="text-sm">{location.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-1">{location.description}</p>
         )}
 
-        {location.category && (
-          <p className="text-xs text-muted-foreground">
-            Category: {location.category}
+        {location.enrichedData?.openingHours?.openNow !== undefined && (
+          <p className="text-xs">
+            <span
+              className={
+                location.enrichedData.openingHours.openNow
+                  ? "text-green-600 font-medium"
+                  : "text-red-600 font-medium"
+              }
+            >
+              {location.enrichedData.openingHours.openNow
+                ? "Open now"
+                : "Closed"}
+            </span>
           </p>
         )}
 
-        {location.enrichedData && (
-          <div className="pt-2 border-t space-y-1">
-            {location.enrichedData.openingHours?.openNow !== undefined && (
-              <p className="text-sm">
-                <span
-                  className={
-                    location.enrichedData.openingHours.openNow
-                      ? "text-green-600 font-medium"
-                      : "text-red-600 font-medium"
-                  }
-                >
-                  {location.enrichedData.openingHours.openNow
-                    ? "Open now"
-                    : "Closed"}
-                </span>
-              </p>
-            )}
-
-            {location.enrichedData.phoneNumber && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="h-3 w-3" />
-                <span>{location.enrichedData.phoneNumber}</span>
-              </div>
-            )}
-
-            {location.enrichedData.website && (
-              <div className="flex items-center gap-2 text-sm">
-                <Globe className="h-3 w-3" />
-                <a
-                  href={location.enrichedData.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Visit website
-                </a>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-2 mt-2">
+        <div className="grid grid-cols-2 gap-1.5 pt-1.5">
           <Button
             variant="outline"
             size="sm"
+            className="h-8 text-xs"
             onClick={handleGetDirections}
             disabled={isLoadingDirections}
           >
-            <Navigation className="h-4 w-4 mr-1" />
+            <Navigation className="h-3 w-3 mr-1" />
             {isLoadingDirections ? "Loading..." : "Directions"}
           </Button>
           <Button
             variant="outline"
             size="sm"
+            className="h-8 text-xs"
             onClick={(e) => {
               e.stopPropagation();
               handleViewOnMap();
             }}
           >
-            <ExternalLink className="h-4 w-4 mr-1" />
+            <ExternalLink className="h-3 w-3 mr-1" />
             Open
           </Button>
         </div>
