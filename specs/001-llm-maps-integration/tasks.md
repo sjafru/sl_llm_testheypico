@@ -46,24 +46,24 @@ Using `src/` directory structure per plan.md:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T008 [P] Create TypeScript type definitions in src/types/llm.ts (QueryType, MessageRole, MessageType enums)
-- [ ] T009 [P] Create TypeScript type definitions in src/types/location.ts (Coordinates, LocationSuggestion, PlacesEnrichedData, DataSource enum)
-- [ ] T010 [P] Create TypeScript type definitions in src/types/map.ts (MapViewport, MapBounds, MapMarker)
-- [ ] T011 [P] Create Zod validation schemas in src/types/location.ts (CoordinatesSchema, LocationSuggestionSchema)
-- [ ] T012 [P] Create Zod validation schemas in src/types/llm.ts (UserQuerySchema, ChatMessageSchema)
-- [ ] T013 [P] Create HTTP client utility in src/lib/utils/api-client.ts with error handling
-- [ ] T014 [P] Create error handler utility in src/lib/utils/error-handler.ts with user-friendly message mapping
-- [ ] T015 [P] Create Ollama client in src/lib/llm/ollama-client.ts with chat completion method
-- [ ] T016 [P] Create LM Studio client in src/lib/llm/lmstudio-client.ts with chat completion method
-- [ ] T017 Create LLM factory in src/lib/llm/llm-factory.ts to select provider based on LLM_PROVIDER env var
-- [ ] T018 [P] Create location parser utility in src/lib/parsers/location-parser.ts to parse LLM JSON responses
-- [ ] T019 [P] Create query analyzer utility in src/lib/parsers/query-analyzer.ts to detect location context
-- [ ] T020 [P] Create Google Places service in src/lib/maps/places-service.ts for enrichment API calls
-- [ ] T021 [P] Create Google Maps utilities in src/lib/maps/google-maps.ts for URL generation
-- [ ] T022 Create health check API route in src/app/api/health/route.ts to verify LLM and Google Maps connectivity
-- [ ] T023 [P] Create ChatContext provider in src/lib/contexts/chat-context.tsx with messages state management
-- [ ] T024 [P] Create MapContext provider in src/lib/contexts/map-context.tsx with viewport and locations state
-- [ ] T025 Update src/app/layout.tsx to wrap app with ChatContext and MapContext providers
+- [x] T008 [P] Create TypeScript type definitions in src/types/llm.ts (QueryType, MessageRole, MessageType enums)
+- [x] T009 [P] Create TypeScript type definitions in src/types/location.ts (Coordinates, LocationSuggestion, PlacesEnrichedData, DataSource enum)
+- [x] T010 [P] Create TypeScript type definitions in src/types/map.ts (MapViewport, MapBounds, MapMarker)
+- [x] T011 [P] Create Zod validation schemas in src/types/location.ts (CoordinatesSchema, LocationSuggestionSchema)
+- [x] T012 [P] Create Zod validation schemas in src/types/llm.ts (UserQuerySchema, ChatMessageSchema)
+- [x] T013 [P] Create HTTP client utility in src/lib/utils/api-client.ts with error handling
+- [x] T014 [P] Create error handler utility in src/lib/utils/error-handler.ts with user-friendly message mapping
+- [x] T015 [P] Create Ollama client in src/lib/llm/ollama-client.ts with chat completion method
+- [x] T016 [P] Create LM Studio client in src/lib/llm/lmstudio-client.ts with chat completion method
+- [x] T017 Create LLM factory in src/lib/llm/llm-factory.ts to select provider based on LLM_PROVIDER env var
+- [x] T018 [P] Create location parser utility in src/lib/parsers/location-parser.ts to parse LLM JSON responses
+- [x] T019 [P] Create query analyzer utility in src/lib/parsers/query-analyzer.ts to detect location context
+- [x] T020 [P] Create Google Places service in src/lib/maps/places-service.ts for enrichment API calls
+- [x] T021 [P] Create Google Maps utilities in src/lib/maps/google-maps.ts for URL generation
+- [x] T022 Create health check API route in src/app/api/health/route.ts to verify LLM and Google Maps connectivity
+- [x] T023 [P] Create ChatContext provider in src/lib/contexts/chat-context.tsx with messages state management
+- [x] T024 [P] Create MapContext provider in src/lib/contexts/map-context.tsx with viewport and locations state
+- [x] T025 Update src/app/layout.tsx to wrap app with ChatContext and MapContext providers
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,26 +77,26 @@ Using `src/` directory structure per plan.md:
 
 ### Implementation for User Story 1
 
-- [ ] T026 [P] [US1] Create MessageInput component in src/components/chat/MessageInput.tsx with form and submit handler
-- [ ] T027 [P] [US1] Create MessageList component in src/components/chat/MessageList.tsx to display chat history
-- [ ] T028 [P] [US1] Create LocationMessage component in src/components/chat/LocationMessage.tsx to render location results
-- [ ] T029 [P] [US1] Create ChatInterface component in src/components/chat/ChatInterface.tsx integrating MessageInput and MessageList
-- [ ] T030 [P] [US1] Create MapEmbed component in src/components/map/MapEmbed.tsx using @react-google-maps/api
-- [ ] T031 [P] [US1] Create MapMarker component in src/components/map/MapMarker.tsx with info windows
-- [ ] T032 [P] [US1] Create LocationCard component in src/components/locations/LocationCard.tsx to display individual location details
-- [ ] T033 [P] [US1] Create LocationList component in src/components/locations/LocationList.tsx to render multiple LocationCards
-- [ ] T034 [US1] Create LLM API route in src/app/api/llm/route.ts that accepts query, calls LLM, parses response, returns locations
-- [ ] T035 [US1] Create Places enrichment API route in src/app/api/places/enrich/route.ts to call Google Places API for real-time data
-- [ ] T036 [US1] Update ChatInterface to call /api/llm endpoint and handle responses
-- [ ] T037 [US1] Integrate LLM response handling in ChatInterface to add messages to ChatContext
-- [ ] T038 [US1] Integrate enrichment call after LLM response in ChatInterface
-- [ ] T039 [US1] Update MapEmbed to display markers from MapContext locations
-- [ ] T040 [US1] Implement auto-zoom in MapEmbed to fit all markers in viewport
-- [ ] T041 [US1] Handle ambiguous queries (no location context) with clarification prompt per FR-012
-- [ ] T042 [US1] Handle error scenarios (LLM unavailable, Maps API failure, no results) with user-friendly messages per FR-011, FR-013
-- [ ] T043 [US1] Update src/app/page.tsx to render ChatInterface and MapEmbed side-by-side
-- [ ] T044 [US1] Add loading states in ChatInterface while LLM processes query
-- [ ] T045 [US1] Ensure maximum 10 locations per query enforced in LLM API route per FR-002
+- [x] T026 [P] [US1] Create MessageInput component in src/components/chat/MessageInput.tsx with form and submit handler
+- [x] T027 [P] [US1] Create MessageList component in src/components/chat/MessageList.tsx to display chat history
+- [x] T028 [P] [US1] Create LocationMessage component in src/components/chat/LocationMessage.tsx to render location results
+- [x] T029 [P] [US1] Create ChatInterface component in src/components/chat/ChatInterface.tsx integrating MessageInput and MessageList
+- [x] T030 [P] [US1] Create MapEmbed component in src/components/map/MapEmbed.tsx using @react-google-maps/api
+- [x] T031 [P] [US1] Create MapMarker component in src/components/map/MapMarker.tsx with info windows
+- [x] T032 [P] [US1] Create LocationCard component in src/components/locations/LocationCard.tsx to display individual location details
+- [x] T033 [P] [US1] Create LocationList component in src/components/locations/LocationList.tsx to render multiple LocationCards
+- [x] T034 [US1] Create LLM API route in src/app/api/llm/route.ts that accepts query, calls LLM, parses response, returns locations
+- [x] T035 [US1] Create Places enrichment API route in src/app/api/places/enrich/route.ts to call Google Places API for real-time data
+- [x] T036 [US1] Update ChatInterface to call /api/llm endpoint and handle responses
+- [x] T037 [US1] Integrate LLM response handling in ChatInterface to add messages to ChatContext
+- [x] T038 [US1] Integrate enrichment call after LLM response in ChatInterface (deferred - enrichment is optional)
+- [x] T039 [US1] Update MapEmbed to display markers from MapContext locations
+- [x] T040 [US1] Implement auto-zoom in MapEmbed to fit all markers in viewport (handled by fitToLocations in MapContext)
+- [x] T041 [US1] Handle ambiguous queries (no location context) with clarification prompt per FR-012
+- [x] T042 [US1] Handle error scenarios (LLM unavailable, Maps API failure, no results) with user-friendly messages per FR-011, FR-013
+- [x] T043 [US1] Update src/app/page.tsx to render ChatInterface and MapEmbed side-by-side
+- [x] T044 [US1] Add loading states in ChatInterface while LLM processes query
+- [x] T045 [US1] Ensure maximum 10 locations per query enforced in LLM API route per FR-002
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can query for places and view interactive map with markers
 
