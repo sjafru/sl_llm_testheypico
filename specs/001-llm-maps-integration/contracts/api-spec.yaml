@@ -1,0 +1,679 @@
+openapi: 3.0.3
+info:
+  title: LLM Maps Integration API
+  description: API for local LLM with Google Maps integration
+  version: 1.0.0
+  contact:
+    name: API Support
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+tags:
+  - name: LLM
+    description: Large Language Model operations
+  - name: Places
+    description: Location enrichment and search
+  - name: Directions
+    description: Routing and navigation
+  - name: Health
+    description: System health checks
+
+paths:
+  /llm:
+    post:
+      tags:
+        - LLM
+      summary: Send query to LLM
+      description: Process user query through local LLM (Ollama/LM Studio) and return location suggestions
+      operationId: queryLLM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LLMRequest'
+            example:
+              query: "Find good Italian restaurants in downtown Seattle"
+              maxResults: 10
+      responses:
+        '200':
+          description: Successful response with location suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMResponse'
+              example:
+                queryId: "550e8400-e29b-41d4-a716-446655440000"
+                locations:
+                  - id: "loc_001"
+                    name: "Pasta Bella"
+                    address: "123 Main St, Seattle, WA 98101"
+                    coordinates:
+                      lat: 47.6062
+                      lng: -122.3321
+                    placeType: "restaurant"
+                    description: "Authentic Italian cuisine"
+                    source: "llm"
+                hasLocationContext: true
+                needsClarification: false
+                processingTime: 2500
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: LLM service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /places/enrich:
+    post:
+      tags:
+        - Places
+      summary: Enrich locations with Google Places data
+      description: Fetch real-time data from Google Places API for given locations
+      operationId: enrichLocations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichmentRequest'
+            example:
+              locations:
+                - id: "loc_001"
+                  name: "Pasta Bella"
+                  coordinates:
+                    lat: 47.6062
+                    lng: -122.3321
+      responses:
+        '200':
+          description: Successfully enriched locations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentResponse'
+              example:
+                enrichedLocations:
+                  - id: "loc_001"
+                    enrichedData:
+                      placeId: "ChIJN1t_tDeuEmsRUsoyG83frY4"
+                      rating: 4.5
+                      userRatingsTotal: 234
+                      priceLevel: 2
+                      openingHours: "Mon-Sun: 11:00 AM - 10:00 PM"
+                      phoneNumber: "+1 206-555-1234"
+                      website: "https://pastabella.example.com"
+                      businessStatus: "OPERATIONAL"
+                      lastUpdated: "2025-11-12T10:30:00Z"
+                errors: []
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /places/directions:
+    post:
+      tags:
+        - Directions
+      summary: Get directions between two points
+      description: Fetch routing information from Google Directions API
+      operationId: getDirections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectionsRequest'
+            example:
+              origin:
+                lat: 47.6062
+                lng: -122.3321
+              destination:
+                lat: 47.6205
+                lng: -122.3493
+              travelMode: "driving"
+      responses:
+        '200':
+          description: Successfully retrieved directions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectionsResponse'
+              example:
+                id: "dir_001"
+                status: "OK"
+                routes:
+                  - summary: "Via 1st Ave"
+                    overviewPolyline: "encoded_polyline_string"
+                    legs:
+                      - distance:
+                          value: 2400
+                          text: "2.4 km"
+                        duration:
+                          value: 480
+                          text: "8 mins"
+                        startAddress: "123 Main St, Seattle, WA"
+                        endAddress: "456 Pike St, Seattle, WA"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No route found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check system health and LLM connectivity
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "healthy"
+                timestamp: "2025-11-12T10:30:00Z"
+                services:
+                  llm:
+                    status: "up"
+                    provider: "ollama"
+                    model: "llama2:7b"
+                    responseTime: 120
+                  googleMaps:
+                    status: "up"
+                    apiKeyValid: true
+        '503':
+          description: System unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    # Request Schemas
+    LLMRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: User's natural language query
+        maxResults:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 10
+          description: Maximum number of location suggestions
+        context:
+          type: object
+          description: Optional context (e.g., previous conversation)
+          properties:
+            previousQuery:
+              type: string
+
+    EnrichmentRequest:
+      type: object
+      required:
+        - locations
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationBasic'
+          maxItems: 10
+          description: Locations to enrich with Places API data
+
+    DirectionsRequest:
+      type: object
+      required:
+        - origin
+        - destination
+      properties:
+        origin:
+          oneOf:
+            - $ref: '#/components/schemas/Coordinates'
+            - type: string
+          description: Starting point (coordinates or address)
+        destination:
+          $ref: '#/components/schemas/Coordinates'
+          description: Destination coordinates
+        travelMode:
+          type: string
+          enum: [driving, walking, bicycling, transit]
+          default: driving
+          description: Mode of transportation
+
+    # Response Schemas
+    LLMResponse:
+      type: object
+      required:
+        - queryId
+        - locations
+        - hasLocationContext
+        - needsClarification
+      properties:
+        queryId:
+          type: string
+          format: uuid
+          description: Unique identifier for this query
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationSuggestion'
+          maxItems: 10
+          description: Location suggestions from LLM
+        hasLocationContext:
+          type: boolean
+          description: Whether query included geographic context
+        needsClarification:
+          type: boolean
+          description: Whether user input is ambiguous
+        clarificationPrompt:
+          type: string
+          description: Prompt for user if clarification needed
+        processingTime:
+          type: number
+          description: Processing time in milliseconds
+
+    EnrichmentResponse:
+      type: object
+      required:
+        - enrichedLocations
+      properties:
+        enrichedLocations:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                type: string
+              enrichedData:
+                $ref: '#/components/schemas/PlacesEnrichedData'
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              locationId:
+                type: string
+              error:
+                type: string
+          description: Enrichment errors for specific locations
+
+    DirectionsResponse:
+      type: object
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [OK, NOT_FOUND, ZERO_RESULTS, MAX_WAYPOINTS_EXCEEDED, INVALID_REQUEST, OVER_QUERY_LIMIT, REQUEST_DENIED, UNKNOWN_ERROR]
+        routes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Route'
+        errorMessage:
+          type: string
+          description: Error details if status is not OK
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        services:
+          type: object
+          properties:
+            llm:
+              $ref: '#/components/schemas/ServiceHealth'
+            googleMaps:
+              $ref: '#/components/schemas/ServiceHealth'
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: Error code
+            message:
+              type: string
+              description: Human-readable error message
+            details:
+              type: object
+              description: Additional error details
+
+    # Entity Schemas
+    Coordinates:
+      type: object
+      required:
+        - lat
+        - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude
+        lng:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude
+
+    LocationBasic:
+      type: object
+      required:
+        - id
+        - name
+        - coordinates
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+
+    LocationSuggestion:
+      type: object
+      required:
+        - id
+        - name
+        - address
+        - coordinates
+        - placeType
+        - source
+      properties:
+        id:
+          type: string
+          description: Unique location identifier
+        name:
+          type: string
+          maxLength: 200
+          description: Place name
+        address:
+          type: string
+          maxLength: 500
+          description: Full address
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        placeType:
+          type: string
+          description: Category (restaurant, park, etc.)
+        description:
+          type: string
+          maxLength: 500
+          description: Brief description from LLM
+        source:
+          type: string
+          enum: [llm, llm_enriched]
+          description: Data source
+
+    PlacesEnrichedData:
+      type: object
+      required:
+        - placeId
+        - lastUpdated
+      properties:
+        placeId:
+          type: string
+          description: Google Place ID
+        rating:
+          type: number
+          format: float
+          minimum: 1.0
+          maximum: 5.0
+          description: Average rating
+        userRatingsTotal:
+          type: integer
+          minimum: 0
+          description: Total number of ratings
+        priceLevel:
+          type: integer
+          minimum: 0
+          maximum: 4
+          description: Price level (0-4)
+        openingHours:
+          type: string
+          description: Formatted opening hours
+        phoneNumber:
+          type: string
+          description: Formatted phone number
+        website:
+          type: string
+          format: uri
+          description: Business website URL
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlacePhoto'
+          maxItems: 5
+        businessStatus:
+          type: string
+          enum: [OPERATIONAL, CLOSED_TEMPORARILY, CLOSED_PERMANENTLY]
+        lastUpdated:
+          type: string
+          format: date-time
+          description: When enrichment occurred
+
+    PlacePhoto:
+      type: object
+      required:
+        - reference
+        - width
+        - height
+      properties:
+        reference:
+          type: string
+          description: Photo reference string
+        width:
+          type: integer
+          description: Photo width in pixels
+        height:
+          type: integer
+          description: Photo height in pixels
+
+    Route:
+      type: object
+      required:
+        - summary
+        - legs
+        - overviewPolyline
+      properties:
+        summary:
+          type: string
+          description: Route name/description
+        legs:
+          type: array
+          items:
+            $ref: '#/components/schemas/RouteLeg'
+        overviewPolyline:
+          type: string
+          description: Encoded polyline for entire route
+        bounds:
+          $ref: '#/components/schemas/MapBounds'
+        copyrights:
+          type: string
+        warnings:
+          type: array
+          items:
+            type: string
+
+    RouteLeg:
+      type: object
+      required:
+        - distance
+        - duration
+        - startAddress
+        - endAddress
+      properties:
+        distance:
+          $ref: '#/components/schemas/Distance'
+        duration:
+          $ref: '#/components/schemas/Duration'
+        startAddress:
+          type: string
+        endAddress:
+          type: string
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/RouteStep'
+
+    RouteStep:
+      type: object
+      required:
+        - instruction
+        - distance
+        - duration
+        - startLocation
+        - endLocation
+      properties:
+        instruction:
+          type: string
+          description: HTML-formatted instruction
+        distance:
+          $ref: '#/components/schemas/Distance'
+        duration:
+          $ref: '#/components/schemas/Duration'
+        startLocation:
+          $ref: '#/components/schemas/Coordinates'
+        endLocation:
+          $ref: '#/components/schemas/Coordinates'
+
+    Distance:
+      type: object
+      required:
+        - value
+        - text
+      properties:
+        value:
+          type: number
+          description: Distance in meters
+        text:
+          type: string
+          description: Formatted distance string
+
+    Duration:
+      type: object
+      required:
+        - value
+        - text
+      properties:
+        value:
+          type: number
+          description: Duration in seconds
+        text:
+          type: string
+          description: Formatted duration string
+
+    MapBounds:
+      type: object
+      required:
+        - north
+        - south
+        - east
+        - west
+      properties:
+        north:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        south:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        east:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+        west:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+
+    ServiceHealth:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [up, down, degraded]
+        provider:
+          type: string
+        model:
+          type: string
+        responseTime:
+          type: number
+          description: Response time in milliseconds
+        apiKeyValid:
+          type: boolean
+        errorMessage:
+          type: string
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for future authentication (not implemented in MVP)
+
+security: []
